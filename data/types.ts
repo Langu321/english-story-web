@@ -3,25 +3,30 @@ export type Vocabulary = {
   word: string;
   phonetic: string;
   meaningVi: string;
+  image?: string;
   example: string;
   exampleVi: string;
 };
 
-export type Sentence = {
+export type StorySentence = {
   id: string;
   text: string;
+  translation: string;
+  audio?: string;
   vocabularyIds: string[];
+  timings?: { word: string; start: number; end: number }[];
+};
+
+export type StoryPage = {
+  id: string;
+  sentences: StorySentence[];
 };
 
 export type Story = {
   id: string;
   title: string;
-  level: "A1" | "A2";
-  category: string;
+  author: string;
+  coverImage: string;
   description: string;
-  duration: number;
-  symbol: string;
-  color: string;
-  vocabulary: string[];
-  sentences: Sentence[];
+  pages: StoryPage[];
 };
