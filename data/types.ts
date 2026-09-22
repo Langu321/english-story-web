@@ -4,6 +4,7 @@ export type Vocabulary = {
   phonetic: string;
   meaningVi: string;
   image?: string;
+  audio?: string;
   example: string;
   exampleVi: string;
 };

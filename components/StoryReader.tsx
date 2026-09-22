@@ -1,26 +1,52 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { Story, StorySentence, Vocabulary } from "@/data/types";
-import { vocabulary } from "@/data/vocabulary";
+import { useEffect, useRef, useState } from "react";
+import type { Story, Vocabulary } from "@/data/types";
+import { vocabulary as vocabularyData } from "@/data/vocabulary";
 
 const STORAGE_KEY = "story-english-vocabulary";
 
-type PlaybackMode = "idle" | "playing" | "paused";
+type Timing = {
+  word: string;
+  start: number;
+  end: number;
+};
+
+type ReaderSentence = {
+  id: string;
+  text: string;
+  translation?: string;
+  audio?: string;
+  vocabularyIds: string[];
+  timings: Timing[];
+};
+
+type ReaderPage = {
+  id: string;
+  title?: string;
+  audio?: string;
+  sentences: ReaderSentence[];
+};
 
 export function StoryReader({ story }: { story: Story }) {
-  const page = story.pages[0];
-  const [selectedWord, setSelectedWord] = useState<Vocabulary | null>(null);
-  const [saved, setSaved] = useState<string[]>([]);
-  const [mode, setMode] = useState<PlaybackMode>("idle");
-  const [currentSentence, setCurrentSentence] = useState(0);
-  const [activeWord, setActiveWord] = useState<number | null>(null);
-  const [speed, setSpeed] = useState(0.85);
-  const [showTranslation, setShowTranslation] = useState(false);
+  const pages = story.pages as ReaderPage[];
+  const [pageIndex, setPageIndex] = useState(0);
+  const page = pages[pageIndex];
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const fallbackRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const stopAtRef = useRef<number | null>(null);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const [playing, setPlaying] = useState(false);
+  const [currentSentence, setCurrentSentence] = useState(0);
+  const [activeWord, setActiveWord] = useState(-1);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [selectedWord, setSelectedWord] = useState<Vocabulary | null>(null);
+  const [speed, setSpeed] = useState(1);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [saved, setSaved] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -31,154 +57,182 @@ export function StoryReader({ story }: { story: Story }) {
     }
   }, []);
 
-  useEffect(() => {
-    return () => stopEverything();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const sentences = page?.sentences ?? [];
+  const current = sentences[currentSentence];
 
-  const wordsInStory = useMemo(() => {
-    const ids = new Set(page.sentences.flatMap((sentence) => sentence.vocabularyIds));
-    return vocabulary.filter((word) => ids.has(word.id));
-  }, [page]);
+  const pageAudio =
+    page?.audio ||
+    `/stories/${story.id}/audio/${page?.id ?? `page-${pageIndex + 1}`}.mp3`;
 
-  const current = page.sentences[currentSentence];
-  const currentWords = wordsInStory.filter((word) => current.vocabularyIds.includes(word.id));
+  const progress =
+    duration > 0
+      ? Math.min(100, (currentTime / duration) * 100)
+      : sentences.length
+        ? Math.min(100, ((currentSentence + 1) / sentences.length) * 100)
+        : 0;
 
-  function stopEverything() {
-    audioRef.current?.pause();
-    if (audioRef.current) {
-      audioRef.current.ontimeupdate = null;
-      audioRef.current.onended = null;
-      audioRef.current.onerror = null;
-      audioRef.current = null;
+  function stopAnimationLoop() {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
     }
-    window.speechSynthesis?.cancel();
-    fallbackRef.current = null;
-    setMode("idle");
-    setActiveWord(null);
   }
 
-  function setSentence(index: number) {
-    const safeIndex = Math.max(0, Math.min(index, page.sentences.length - 1));
-    setCurrentSentence(safeIndex);
-    setActiveWord(null);
-    setShowTranslation(false);
-  }
+  function syncFromAudio() {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-  function findWordIndex(sentence: StorySentence, charIndex: number) {
-    let cursor = 0;
-    const tokens = sentence.text.split(/(\s+)/);
-    for (const token of tokens) {
-      const start = cursor;
-      const end = cursor + token.length;
-      if (charIndex >= start && charIndex < end && token.trim()) {
-        const wordsBefore = sentence.text.slice(0, start).trim().split(/\s+/).filter(Boolean).length;
-        return wordsBefore;
-      }
-      cursor = end;
-    }
-    return null;
-  }
-
-  function speakFallback(sentence: StorySentence, index: number, continuePage: boolean) {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(sentence.text);
-    utterance.lang = "en-US";
-    utterance.rate = speed;
-    utterance.onboundary = (event) => {
-      const wordIndex = findWordIndex(sentence, event.charIndex);
-      if (wordIndex !== null) setActiveWord(wordIndex);
-    };
-    utterance.onend = () => {
-      fallbackRef.current = null;
-      setActiveWord(null);
-      if (continuePage && index < page.sentences.length - 1) {
-        playSentence(index + 1, true);
-      } else {
-            setMode("idle");
-      }
-    };
-    utterance.onerror = () => {
-      fallbackRef.current = null;
-        setMode("idle");
-      setActiveWord(null);
-    };
-    fallbackRef.current = utterance;
-    setSentence(index);
-    setMode("playing");
-    window.speechSynthesis.speak(utterance);
-  }
-
-  function updateActiveWord(audio: HTMLAudioElement, sentence: StorySentence) {
-    if (!sentence.timings?.length) return;
     const time = audio.currentTime;
-    const index = sentence.timings.findIndex((item) => time >= item.start && time < item.end);
-    setActiveWord(index === -1 ? null : index);
-  }
+    setCurrentTime(time);
 
-  function playSentence(index: number, continuePage = false) {
-    const sentence = page.sentences[index];
-    setSentence(index);
+    const sentenceIndex = sentences.findIndex((item) => {
+      const firstWord = item.timings[0];
+      const lastWord = item.timings[item.timings.length - 1];
+      if (!firstWord || !lastWord) return false;
+      return time >= firstWord.start && time <= lastWord.end + 0.2;
+    });
 
-    audioRef.current?.pause();
-    window.speechSynthesis.cancel();
-    setActiveWord(null);
+    if (sentenceIndex >= 0 && sentenceIndex !== currentSentence) {
+      setCurrentSentence(sentenceIndex);
+      setShowTranslation(false);
+    }
 
-    if (!sentence.audio) {
-      speakFallback(sentence, index, continuePage);
+    const activeSentence = sentences[sentenceIndex >= 0 ? sentenceIndex : currentSentence];
+    if (activeSentence) {
+      const wordIndex = activeSentence.timings.findIndex(
+        (timing) => time >= timing.start && time < timing.end
+      );
+      setActiveWord(wordIndex);
+    } else {
+      setActiveWord(-1);
+    }
+
+    if (stopAtRef.current !== null && time >= stopAtRef.current) {
+      audio.pause();
+      audio.currentTime = stopAtRef.current;
+      stopAtRef.current = null;
+      setPlaying(false);
+      setActiveWord(-1);
+      stopAnimationLoop();
       return;
     }
 
-    const audio = new Audio(sentence.audio);
-    audio.preload = "auto";
-    audio.playbackRate = speed;
-    audioRef.current = audio;
-    setMode("playing");
+    if (!audio.paused && !audio.ended) {
+      rafRef.current = requestAnimationFrame(syncFromAudio);
+    }
+  }
 
-    audio.ontimeupdate = () => updateActiveWord(audio, sentence);
-    audio.onended = () => {
-      setActiveWord(null);
-      audioRef.current = null;
-      if (continuePage && index < page.sentences.length - 1) {
-        playSentence(index + 1, true);
-      } else {
-            setMode("idle");
-      }
-    };
-    audio.onerror = () => speakFallback(sentence, index, continuePage);
+  function startAnimationLoop() {
+    stopAnimationLoop();
+    rafRef.current = requestAnimationFrame(syncFromAudio);
+  }
 
-    audio.play().catch(() => speakFallback(sentence, index, continuePage));
+  async function playFrom(time?: number, stopAt?: number) {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    window.speechSynthesis?.cancel();
+    stopAtRef.current = stopAt ?? null;
+
+    if (typeof time === "number") {
+      audio.currentTime = time;
+    }
+
+    try {
+      await audio.play();
+      setPlaying(true);
+      startAnimationLoop();
+    } catch {
+      setPlaying(false);
+    }
+  }
+
+  function pauseAudio() {
+    audioRef.current?.pause();
+    stopAtRef.current = null;
+    setPlaying(false);
+    setActiveWord(-1);
+    stopAnimationLoop();
   }
 
   function playPage() {
-    if (mode === "playing") {
-      audioRef.current?.pause();
-      window.speechSynthesis?.pause();
-      setMode("paused");
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (playing) {
+      pauseAudio();
       return;
     }
 
-    if (mode === "paused") {
-      if (audioRef.current) {
-        audioRef.current.play();
-      } else {
-        window.speechSynthesis?.resume();
-      }
-      setMode("playing");
-      return;
+    if (audio.ended) {
+      audio.currentTime = 0;
+      setCurrentSentence(0);
     }
 
-    playSentence(currentSentence, true);
+    playFrom();
+  }
+
+  function playSentence(index: number) {
+    const item = sentences[index];
+    if (!item || !item.timings.length) return;
+
+    setCurrentSentence(index);
+    setShowTranslation(false);
+
+    const startTime = item.timings[0].start;
+    const endTime = item.timings[item.timings.length - 1].end;
+    playFrom(startTime, endTime);
   }
 
   function replayCurrent() {
-    playSentence(currentSentence, false);
+    playSentence(currentSentence);
   }
 
   function changeSpeed(value: number) {
     setSpeed(value);
-    if (audioRef.current) audioRef.current.playbackRate = value;
-    if (fallbackRef.current) fallbackRef.current.rate = value;
+    if (audioRef.current) {
+      audioRef.current.playbackRate = value;
+    }
+  }
+
+  function speakWord(wordItem: Vocabulary) {
+    if (!wordItem || !wordItem.audio) return;
+
+    // Tạm dừng bài đọc chính nếu đang chạy
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setPlaying(false);
+    stopAnimationLoop();
+
+    // Khởi tạo và phát file MP3 từ vựng
+    const wordAudio = new Audio(wordItem.audio);
+    wordAudio.playbackRate = speed;
+    wordAudio.play();
+  }
+
+  function openWord(id: string) {
+    const word = vocabularyData.find((item) => item.id === id);
+    if (!word) return;
+
+    // Dừng audio bài đọc chính một cách trực tiếp
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setPlaying(false);
+    stopAnimationLoop();
+
+    // Mở Modal
+    setSelectedWord(word);
+
+    // Truyền nguyên đối tượng `word` (có thuộc tính .audio) vào hàm speakWord
+    speakWord(word);
+  }
+
+  function closeWord() {
+    window.speechSynthesis?.cancel();
+    speechRef.current = null;
+    setSelectedWord(null);
   }
 
   function saveWord(word: Vocabulary) {
@@ -187,156 +241,356 @@ export function StoryReader({ story }: { story: Story }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   }
 
-  function speakWord(word: Vocabulary) {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(word.word);
-    utterance.lang = "en-US";
-    utterance.rate = 0.8;
-    window.speechSynthesis.speak(utterance);
+  function goPage(nextIndex: number) {
+    if (nextIndex < 0 || nextIndex >= pages.length) return;
+
+    pauseAudio();
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+    }
+
+    setPageIndex(nextIndex);
+    setCurrentSentence(0);
+    setActiveWord(-1);
+    setCurrentTime(0);
+    setDuration(0);
+    setShowTranslation(false);
   }
 
-  function renderSentence(sentence: StorySentence, sentenceWords: Vocabulary[]) {
+  useEffect(() => {
+    const audio = new Audio();
+    audio.preload = "metadata";
+    audio.playbackRate = speed;
+    audioRef.current = audio;
+
+    const onLoaded = () => {
+      setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
+    };
+
+    const onEnded = () => {
+      stopAtRef.current = null;
+      setPlaying(false);
+      setActiveWord(-1);
+      setCurrentTime(audio.duration || 0);
+      stopAnimationLoop();
+    };
+
+    audio.addEventListener("loadedmetadata", onLoaded);
+    audio.addEventListener("durationchange", onLoaded);
+    audio.addEventListener("ended", onEnded);
+
+    audio.src = pageAudio;
+    audio.load();
+
+    return () => {
+      stopAnimationLoop();
+      audio.pause();
+      audio.src = "";
+      audio.removeEventListener("loadedmetadata", onLoaded);
+      audio.removeEventListener("durationchange", onLoaded);
+      audio.removeEventListener("ended", onEnded);
+      audioRef.current = null;
+    };
+  }, [pageAudio]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+    }
+  }, [speed]);
+
+  useEffect(() => {
+    if (!playing || !current?.id) return;
+
+    document
+      .getElementById(`sentence-${current.id}`)
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+  }, [currentSentence, playing, current?.id]);
+
+  useEffect(() => {
+    return () => {
+      stopAnimationLoop();
+      window.speechSynthesis?.cancel();
+    };
+  }, []);
+
+  function renderSentence(sentence: ReaderSentence, sentenceIndex: number) {
+    const vocabulary = sentence.vocabularyIds
+      .map((id) => vocabularyData.find((word) => word.id === id))
+      .filter(Boolean) as Vocabulary[];
+
+    const vocabularyMap = new Map(
+      vocabulary.map((word) => [normalizeWord(word.word), word])
+    );
+
+    // 1. Tách chuỗi đơn giản theo khoảng trắng như bản cũ
     const tokens = sentence.text.split(/(\s+)/);
-    let wordIndex = 0;
-    const sentenceIndex = page.sentences.findIndex((item) => item.id === sentence.id);
 
-    return tokens.map((part, index) => {
-      const clean = part.replace(/[.,!?;:"'“”‘’()]/g, "");
-      const isWordToken = Boolean(clean && part.trim());
-      const currentWordIndex = wordIndex;
-      if (isWordToken) wordIndex += 1;
+    let timingIndex = 0;
 
-      if (!isWordToken) return <span key={index}>{part}</span>;
+    return tokens.map((token, tokenIndex) => {
+      // Nếu là khoảng trắng -> render giữ nguyên
+      if (/^\s+$/.test(token)) {
+        return <span key={`${sentence.id}-space-${tokenIndex}`}>{token}</span>;
+      }
 
-      const vocabularyWord = sentenceWords.find(
-        (word) => word.word.toLowerCase() === clean.toLowerCase()
-      );
-      const active = currentSentence === sentenceIndex && activeWord === currentWordIndex;
-      const className = active ? "story-word word-active" : "story-word";
+      const cleanToken = normalizeWord(token);
+      const vocabularyWord = vocabularyMap.get(cleanToken);
+
+      // 2. Tự động so sánh với timing hiện tại (chỉ khớp khi cleanToken chính xác)
+      let matchedIndex = -1;
+      if (
+        timingIndex < sentence.timings.length &&
+        normalizeWord(sentence.timings[timingIndex].word) === cleanToken
+      ) {
+        matchedIndex = timingIndex;
+        timingIndex += 1; // Chỉ tăng khi từ khớp
+      }
+
+      const isActive =
+        playing &&
+        sentenceIndex === currentSentence &&
+        matchedIndex >= 0 &&
+        matchedIndex === activeWord;
 
       if (!vocabularyWord) {
-        return <span key={index} className={className}>{part}</span>;
+        return (
+          <span
+            key={`${sentence.id}-word-${tokenIndex}`}
+            className={isActive ? "story-word word-active" : "story-word"}
+          >
+            {token}
+          </span>
+        );
       }
 
       return (
         <button
-          key={index}
+          key={`${sentence.id}-vocab-${tokenIndex}`}
           type="button"
-          className={`${className} vocab-word`}
-          onClick={() => setSelectedWord(vocabularyWord)}
+          className={
+            isActive
+              ? "story-word vocab-word word-active"
+              : "story-word vocab-word"
+          }
+          onClick={() => openWord(vocabularyWord.id)}
         >
-          {part}
+          {token}
         </button>
       );
     });
   }
 
+  if (!page || !sentences.length) {
+    return null;
+  }
+
   return (
-    <main className="reader-shell">
-      <div className="reader-cover-wrap">
-        <div className="reader-cover">
-          <img src={story.coverImage} alt="" />
-          <div className="cover-overlay">
-            <Link href="/" className="back-button" aria-label="Back to stories">←</Link>
-            <div className="cover-title">
-              <p>{story.author}</p>
-              <h1>{story.title}</h1>
+    <>
+      <main className="reader-shell">
+        <section className="reader-cover-wrap">
+          <div className="reader-cover">
+            <img src={story.coverImage} alt="" />
+
+            <div className="cover-overlay">
+              <a href="/" className="back-button" aria-label="Back to stories">
+                ←
+              </a>
+
+              <div className="cover-title">
+                <p>{story.author}</p>
+                <h1>{story.title}</h1>
+              </div>
+            </div>
+
+            <div className="reader-cover-progress">
+              <div className="reader-cover-progress-meta">
+                <span>{String(currentSentence + 1).padStart(2, "0")}</span>
+                <span>{String(sentences.length).padStart(2, "0")}</span>
+              </div>
+
+              <div className="reader-cover-progress-track">
+                <div
+                  className="reader-cover-progress-fill"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <article className="story-page">
-        <div className="story-heading">
-          <div>
-            <p className="eyebrow">BEGINNER READING</p>
-            <h2>Read slowly. Listen. Say it yourself.</h2>
-          </div>
-          <span>{page.sentences.length} sentences</span>
-        </div>
+        <section className="story-page">
+          <header className="story-heading">
+            <div>
+              <p className="eyebrow">READING</p>
+              <h2>{page.title || `Page ${pageIndex + 1}`}</h2>
+            </div>
 
-        <div className="story-text">
-          {page.sentences.map((sentence, index) => {
-            const sentenceWords = vocabulary.filter((word) => sentence.vocabularyIds.includes(word.id));
-            const activeSentence = currentSentence === index;
-            return (
-              <div key={sentence.id} className={`sentence-block ${activeSentence ? "sentence-active" : ""}`}>
-                <p>{renderSentence(sentence, sentenceWords)}</p>
+            <span>
+              {pageIndex + 1} / {pages.length}
+            </span>
+          </header>
+
+          <div className="story-text">
+            {sentences.map((sentence, index) => (
+              <article
+                key={sentence.id}
+                id={`sentence-${sentence.id}`}
+                className={
+                  index === currentSentence
+                    ? "sentence-block sentence-active"
+                    : "sentence-block"
+                }
+              >
+                <p>{renderSentence(sentence, index)}</p>
+
                 <button
                   type="button"
                   className="sentence-audio"
-                  onClick={() => playSentence(index, false)}
-                  aria-label={`Listen to sentence ${index + 1}`}
+                  onClick={() => playSentence(index)}
+                  aria-label={`Play sentence ${index + 1}`}
                 >
-                  {activeSentence && mode === "playing" ? "Ⅱ" : "▶"}
+                  ▶
                 </button>
-                {activeSentence && showTranslation && <p className="sentence-translation">{sentence.translation}</p>}
-              </div>
-            );
-          })}
-        </div>
 
-        <div className="page-note">
-          <span>Tip</span>
-          Tap an underlined word to see its meaning and save it to your dictionary.
-        </div>
-      </article>
+                {index === currentSentence && showTranslation && (
+                  <p className="sentence-translation">
+                    {sentence.translation}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+
+          <div className="reader-page-navigation">
+            <button
+              type="button"
+              onClick={() => goPage(pageIndex - 1)}
+              disabled={pageIndex === 0}
+            >
+              ← Previous
+            </button>
+
+            <span>
+              Page {pageIndex + 1} of {pages.length}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => goPage(pageIndex + 1)}
+              disabled={pageIndex === pages.length - 1}
+            >
+              {pageIndex === pages.length - 1 ? "Finished" : "Next →"}
+            </button>
+          </div>
+        </section>
+      </main>
 
       <nav className="reader-bottom-nav" aria-label="Reading controls">
-        {/* Nút 1: Listen / Resume */}
-        <button type="button" onClick={playPage} className={mode === "playing" ? "nav-control active" : "nav-control"}>
-          <span className="nav-icon">{mode === "playing" ? "Ⅱ" : "▶"}</span>
-          <span>{mode === "paused" ? "Resume" : "Listen"}</span>
+        <button
+          type="button"
+          onClick={playPage}
+          className={playing ? "reader-play-fab active" : "reader-play-fab"}
+          aria-label={playing ? "Pause" : "Listen"}
+        >
+          {playing ? "Ⅱ" : "▶"}
         </button>
 
-        {/* Nút 2: Replay */}
         <button type="button" onClick={replayCurrent} className="nav-control">
           <span className="nav-icon">↻</span>
           <span>Replay</span>
         </button>
 
-        {/* Nút 3: Translation (Chính giữa / hoặc vị trí thứ 3) */}
         <button
           type="button"
-          className={`nav-control ${showTranslation ? "active" : ""}`}
+          className={showTranslation ? "nav-control active" : "nav-control"}
           onClick={() => setShowTranslation((value) => !value)}
         >
-          <span className="nav-icon">🌐</span>
+          <span className="nav-icon">文</span>
           <span>{showTranslation ? "Hide VN" : "VN"}</span>
         </button>
 
-        {/* Nút 4: Speed */}
-        <label className="nav-control speed-control">
-          <select value={speed} onChange={(event) => changeSpeed(Number(event.target.value))} aria-label="Reading speed">
-            <option value="0.5">0.5×</option>
-            <option value="0.75">0.75×</option>
-            <option value="1">1×</option>
+        <label>
+          <select className="nav-control speed-control"
+            value={speed}
+            onChange={(event) => changeSpeed(Number(event.target.value))}
+            aria-label="Reading speed"
+          >
+            <option value={0.5}>0.5×</option>
+            <option value={0.75}>0.75×</option>
+            <option value={1}>1×</option>
           </select>
         </label>
       </nav>
 
       {selectedWord && (
-        <div className="modal-layer" onClick={() => setSelectedWord(null)}>
-          <div className="word-popup" onClick={(event) => event.stopPropagation()}>
-            <button type="button" className="popup-close" onClick={() => setSelectedWord(null)}>×</button>
-            {selectedWord.image && <img src={selectedWord.image} alt="" className="word-image" />}
+        <div className="modal-layer" onClick={closeWord}>
+          <div
+            className="word-popup"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="popup-close"
+              onClick={closeWord}
+              aria-label="Close"
+            >
+              ×
+            </button>
+
+            {selectedWord.image && (
+              <img className="word-image" src={selectedWord.image} alt="" />
+            )}
+
             <div className="word-content">
               <div className="word-topline">
                 <div>
                   <h2>{selectedWord.word}</h2>
                   <span>{selectedWord.phonetic}</span>
                 </div>
-                <button type="button" className="word-listen" onClick={() => speakWord(selectedWord)}>🔊</button>
+
+                <button
+                  type="button"
+                  className="word-listen"
+                  onClick={() => speakWord(selectedWord)}
+                  aria-label={`Listen to ${selectedWord.word}`}
+                >
+                  ▶
+                </button>
               </div>
+
               <p className="word-meaning">{selectedWord.meaningVi}</p>
-              <div className="word-example"><strong>{selectedWord.example}</strong><span>{selectedWord.exampleVi}</span></div>
-              <button type="button" className={`save-word ${saved.includes(selectedWord.id) ? "is-saved" : ""}`} onClick={() => saveWord(selectedWord)}>
-                {saved.includes(selectedWord.id) ? "✓ Saved to dictionary" : "＋ Save to dictionary"}
+
+              <div className="word-example">
+                <strong>{selectedWord.example}</strong>
+                <span>{selectedWord.exampleVi}</span>
+              </div>
+
+              <button
+                type="button"
+                className={`save-word ${saved.includes(selectedWord.id) ? "is-saved" : ""
+                  }`}
+                onClick={() => saveWord(selectedWord)}
+              >
+                {saved.includes(selectedWord.id)
+                  ? "✓ Saved to dictionary"
+                  : "＋ Save to dictionary"}
               </button>
             </div>
           </div>
         </div>
       )}
-    </main>
+    </>
   );
+}
+
+function normalizeWord(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[“”"'’.,!?;:()[\]{}]+/g, "")
+    .trim();
 }

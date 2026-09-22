@@ -17,7 +17,7 @@ A simple English-learning reader for beginners.
 ## Audio + timings
 Put audio files here:
 
-`public/stories/odyssey/audio/s01.mp3`
+`public/stories/odyssey/audio/page-01.mp3`
 
 and so on.
 
@@ -33,6 +33,9 @@ timings: [
 Times are seconds from the beginning of that sentence's MP3.
 
 If an MP3 is missing, the prototype falls back to browser Speech Synthesis.
+
+### Vocabulary Audio Generation (Google Colab)
+To generate clean .mp3 audio files for individual vocabulary words without installing additional dependencies locally, use the prepared Google Colab Notebook: [Generate Vocabulary Audio Notebook](https://colab.research.google.com/drive/1sG6i7aAM6Ee5lPB1_frCrY5-7EWcAqfL?usp=sharing)
 
 ## Run
 
