@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Story, Vocabulary } from "@/data/types";
 import { vocabulary as vocabularyData } from "@/data/vocabulary";
+import { getAssetPath } from "@/utils/path";
 
 const STORAGE_KEY = "story-english-vocabulary";
 
@@ -60,9 +61,10 @@ export function StoryReader({ story }: { story: Story }) {
   const sentences = page?.sentences ?? [];
   const current = sentences[currentSentence];
 
-  const pageAudio =
+  const pageAudio = getAssetPath(
     page?.audio ||
-    `/stories/${story.id}/audio/${page?.id ?? `page-${pageIndex + 1}`}.mp3`;
+    `/stories/${story.id}/audio/${page?.id ?? `page-${pageIndex + 1}`}.mp3`
+  );
 
   const progress =
     duration > 0
@@ -94,7 +96,7 @@ export function StoryReader({ story }: { story: Story }) {
 
     if (sentenceIndex >= 0 && sentenceIndex !== currentSentence) {
       setCurrentSentence(sentenceIndex);
-      setShowTranslation(false);
+      // setShowTranslation(false);
     }
 
     const activeSentence = sentences[sentenceIndex >= 0 ? sentenceIndex : currentSentence];
@@ -177,7 +179,7 @@ export function StoryReader({ story }: { story: Story }) {
     if (!item || !item.timings.length) return;
 
     setCurrentSentence(index);
-    setShowTranslation(false);
+    // setShowTranslation(false);
 
     const startTime = item.timings[0].start;
     const endTime = item.timings[item.timings.length - 1].end;
@@ -206,7 +208,7 @@ export function StoryReader({ story }: { story: Story }) {
     stopAnimationLoop();
 
     // Khởi tạo và phát file MP3 từ vựng
-    const wordAudio = new Audio(wordItem.audio);
+    const wordAudio = new Audio(getAssetPath(wordItem.audio));
     wordAudio.playbackRate = speed;
     wordAudio.play();
   }
@@ -394,10 +396,10 @@ export function StoryReader({ story }: { story: Story }) {
       <main className="reader-shell">
         <section className="reader-cover-wrap">
           <div className="reader-cover">
-            <img src={story.coverImage} alt="" />
+            <img src={getAssetPath(story.coverImage)} alt="" />
 
             <div className="cover-overlay">
-              <a href="/" className="back-button" aria-label="Back to stories">
+              <a href={getAssetPath("/")} className="back-button" aria-label="Back to stories">
                 ←
               </a>
 
@@ -479,13 +481,24 @@ export function StoryReader({ story }: { story: Story }) {
               Page {pageIndex + 1} of {pages.length}
             </span>
 
-            <button
-              type="button"
-              onClick={() => goPage(pageIndex + 1)}
-              disabled={pageIndex === pages.length - 1}
-            >
-              {pageIndex === pages.length - 1 ? "Finished" : "Next →"}
-            </button>
+            {pageIndex === pages.length - 1 ? (
+              <button
+                type="button"
+                className="reader-finish-link"
+                onClick={() => {
+                  window.location.href = getAssetPath("/");
+                }}
+              >
+                Finished
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => goPage(pageIndex + 1)}
+              >
+                Next →
+              </button>
+            )}
           </div>
         </section>
       </main>
@@ -543,7 +556,7 @@ export function StoryReader({ story }: { story: Story }) {
             </button>
 
             {selectedWord.image && (
-              <img className="word-image" src={selectedWord.image} alt="" />
+              <img className="word-image" src={getAssetPath(selectedWord.image)} alt="" />
             )}
 
             <div className="word-content">

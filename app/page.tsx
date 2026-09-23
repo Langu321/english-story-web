@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { stories } from "@/data/stories";
 import { BottomNav } from "@/components/BottomNav";
+import { getAssetPath } from "@/utils/path";
 
 export default function Home() {
   return (
     <main className="home-shell">
       <header className="topbar">
-        <Link href="/" className="brand">story english</Link>
+        <Link href={getAssetPath("/")} className="brand">story english</Link>
       </header>
 
       <section className="home-intro">
@@ -18,7 +19,7 @@ export default function Home() {
       <section className="story-list">
         {stories.map((story) => (
           <Link key={story.id} href={`/stories/${story.id}`} className="story-card">
-            <img src={story.coverImage} alt="" />
+            <img src={getAssetPath(story.coverImage)} alt="" />
             <div>
               <p className="card-kicker">Beginner · {story.pages[0].sentences.length} sentences</p>
               <h2>{story.title}</h2>

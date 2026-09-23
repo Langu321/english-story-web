@@ -54,7 +54,7 @@ a { color:inherit; text-decoration:none; }
 .modal-layer { position:fixed; inset:0; z-index:30; background:rgba(20,24,20,.28); display:flex; align-items:flex-end; justify-content:center; padding:16px; }
 .word-popup { position:relative; width:min(100%,430px); max-height:78vh; overflow:auto; background:#fff; box-shadow:0 18px 50px rgba(0,0,0,.18); border-radius:18px 18px 8px 8px; }
 .popup-close { position:absolute; right:10px; top:10px; z-index:2; width:32px; height:32px; border:0; border-radius:50%; background:rgba(255,255,255,.9); cursor:pointer; font-size:22px; color:#555; }
-.word-image { width:100%; height:125px; object-fit:cover; display:block; }
+.word-image { max-width:100%; height:125px; object-fit:contain; display:block; margin: 0 auto;}
 .word-content { padding:20px; }
 .word-topline { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .word-topline h2 { margin:0; font-size:30px; letter-spacing:-.04em; }
@@ -126,7 +126,7 @@ a { color:inherit; text-decoration:none; }
 .site-nav-item.coming-soon { opacity:.48; cursor:default; }
 .dictionary-shell { padding-bottom:105px; }
 .dictionary-card { grid-template-columns:64px 1fr auto; align-items:center; }
-.dictionary-card > img { width:64px; height:64px; object-fit:cover; border-radius:10px; background:#f4f2eb; }
+.dictionary-card > img { width:80px; height:80px; object-fit:cover; border-radius:10px; background:#f4f2eb; }
 .dictionary-word-main h2 { margin-bottom:3px; }
 .dictionary-actions { display:flex; gap:6px; }
 .dictionary-actions button { width:36px; height:36px; }
@@ -142,7 +142,7 @@ a { color:inherit; text-decoration:none; }
   .story-text { font-size:17px; line-height:1.9; }
   .reader-bottom-nav, .site-bottom-nav { bottom:10px; width:calc(100% - 20px); border-radius:17px; }
   .dictionary-card { grid-template-columns:52px 1fr auto; padding:13px; gap:11px; }
-  .dictionary-card > img { width:52px; height:52px; }
+  .dictionary-card > img { width:80px; height:80px; }
   .dictionary-word-main h2 { font-size:19px; }
   .dictionary-word-main p { font-size:13px; }
   .dictionary-actions { flex-direction:column; }
@@ -467,10 +467,11 @@ a { color:inherit; text-decoration:none; }
 
 .word-image {
   display: block;
-  width: 100%;
+  max-width: 100%;
   height: 130px;
-  object-fit: cover;
+  object-fit: contain;
   background: #f1efe7;
+  margin: 0 auto;
 }
 
 .word-content {
@@ -671,40 +672,71 @@ a { color:inherit; text-decoration:none; }
 .cover-overlay {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 1;
+  color: #fff;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
   justify-content: space-between;
-  padding: 14px 16px 18px;
-  color: #fff;
+  padding: 16px 20px;
 }
 
+/* Nút Back điệu đà hơn, tròn đều và nằm bên trái */
 .back-button {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(20,22,19,.48);
+  width: 50px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20%;
+  font-size: 16px;
   color: #fff;
-  backdrop-filter: blur(8px);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  /* Đảm bảo nút nằm góc trái */
 }
 
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.cover-dictionary {
+  width: max-content;
+  padding: 8px 11px;
+  background: rgba(255, 255, 255, .15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, .25);
+  font-size: 12px;
+  align-self: flex-end;
+  margin-top: -34px;
+}
+
+/* Đưa phần tiêu đề và tác giả ra giữa, căn giữa chữ */
 .cover-title {
-  text-align: right;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 .cover-title p {
-  margin: 0 0 2px;
-  font-size: 11px;
-  opacity: .82;
+  margin: 0 0 4px;
+  font-size: 14px;
+  opacity: 0.9;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .cover-title h1 {
   margin: 0;
-  font-size: clamp(24px, 7vw, 38px);
-  font-weight: 500;
-  letter-spacing: -.04em;
+  font-size: clamp(26px, 6vw, 42px);
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .reader-cover-progress {
@@ -900,6 +932,24 @@ a { color:inherit; text-decoration:none; }
   font-size: 10px;
 }
 
+.reader-finish-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: var(--primary, #26372e);
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.reader-finish-link:hover {
+  opacity: 0.9;
+}
+
 /* Reader bottom bar */
 .reader-bottom-nav {
   position: fixed;
@@ -997,7 +1047,7 @@ a { color:inherit; text-decoration:none; }
 
 .word-popup {
   position: relative;
-  width: min(440px, 100%);
+  width: min(440px, 130%);
   max-height: 80vh;
   overflow: auto;
   border-radius: 20px;
@@ -1022,9 +1072,10 @@ a { color:inherit; text-decoration:none; }
 
 .word-image {
   display: block;
-  width: 100%;
+  max-width: 100%;
   height: 130px;
-  object-fit: cover;
+  object-fit: contain;
+  margin: 0 auto;
 }
 
 .word-content {

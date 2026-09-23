@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { vocabulary } from "@/data/vocabulary";
 import { BottomNav } from "@/components/BottomNav";
+import { getAssetPath } from "@/utils/path";
 
 const STORAGE_KEY = "story-english-vocabulary";
 
@@ -50,7 +51,7 @@ export default function DictionaryPage() {
         <div className="word-list">
           {words.map((word) => (
             <article key={word.id} className="dictionary-card">
-              {word.image && <img src={word.image} alt="" />}
+              {word.image && <img src={getAssetPath(word.image)} alt="" />}
               <div className="dictionary-word-main">
                 <h2>{word.word}</h2>
                 <span>{word.phonetic}</span>
