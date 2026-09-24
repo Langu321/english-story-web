@@ -1,155 +1,342 @@
-:root { --ink:#20221f; --muted:#777a72; --line:#e6e4dc; --paper:#fbfaf5; --accent:#48644f; --accent-soft:#e8efe8; --warm:#f0c889; }
-* { box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { margin:0; background:var(--paper); color:var(--ink); font-family:Arial, Helvetica, sans-serif; }
-button, select { font:inherit; }
-a { color:inherit; text-decoration:none; }
+/* =========================================================
+   DESIGN TOKENS & RESET
+   ========================================================= */
 
-.topbar { max-width:1050px; margin:auto; padding:22px 24px; display:flex; align-items:center; justify-content:space-between; }
-.brand { font-weight:700; letter-spacing:-.03em; }
-.dictionary-link { font-size:13px; color:var(--muted); }
-.home-shell { min-height:100vh; }
-.home-intro { max-width:1050px; margin:50px auto 35px; padding:0 24px; }
-.eyebrow { margin:0 0 10px; color:var(--accent); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
-.home-intro h1 { margin:0; font-size:clamp(42px,7vw,72px); line-height:.98; letter-spacing:-.055em; }
-.home-intro > p:last-child { margin-top:20px; color:var(--muted); font-size:16px; }
-.story-list { max-width:1050px; margin:auto; padding:0 24px 60px; display:grid; gap:18px; }
-.story-card { display:grid; grid-template-columns:220px 1fr; gap:26px; padding:18px; border:1px solid var(--line); background:#fff; transition:transform .2s, box-shadow .2s; }
-.story-card:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(0,0,0,.06); }
-.story-card img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
-.card-kicker { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
-.story-card h2 { margin:8px 0; font-size:30px; letter-spacing:-.03em; }
-.story-card p { color:var(--muted); line-height:1.6; }
-.story-card span { display:inline-block; margin-top:12px; color:var(--accent); font-weight:700; font-size:13px; }
 
-.reader-shell { min-height:100vh; }
-.reader-cover-wrap { height:25vh; min-height:170px; max-height:270px; position:sticky; top:0; z-index:10; }
-.reader-cover { height:100%; position:relative; overflow:hidden; background:#26372e; }
-.reader-cover img { width:100%; height:100%; object-fit:cover; display:block; }
-.reader-cover::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.32),rgba(0,0,0,.08) 50%,rgba(0,0,0,.45)); pointer-events:none; }
-.cover-overlay { position:absolute; inset:0; z-index:1; color:#fff; display:flex; flex-direction:column; justify-content:space-between; padding:14px 18px 18px; }
-.back-button, .cover-dictionary { width:max-content; padding:8px 11px; background:rgba(255,255,255,.15); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.25); font-size:12px; }
-.cover-dictionary { align-self:flex-end; margin-top:-34px; }
-.cover-title p { margin:0 0 2px; font-size:13px; opacity:.85; }
-.cover-title h1 { margin:0; font-size:clamp(30px,8vw,54px); letter-spacing:-.05em; }
-.story-page { max-width:760px; margin:auto; padding:30px 20px 70px; }
-.story-heading { display:flex; justify-content:space-between; align-items:end; gap:20px; padding-bottom:20px; border-bottom:1px solid var(--line); }
-.story-heading h2 { margin:0; font-size:21px; letter-spacing:-.025em; }
-.story-heading > span { color:var(--muted); font-size:12px; white-space:nowrap; }
-.story-text { padding-top:25px; font-size:18px; line-height:1.85; letter-spacing:.002em; }
-.sentence-block { position:relative; padding:4px 42px 4px 0; border-radius:8px; transition:background .2s; }
-.sentence-block p { margin:0; }
-.sentence-active { background:#f0f3ec; }
-.sentence-audio { position:absolute; right:0; top:10px; width:30px; height:30px; border:1px solid var(--line); border-radius:50%; background:#fff; color:var(--accent); cursor:pointer; font-size:11px; }
-.vocab-word { border:0; border-bottom:2px solid #e6c48e; padding:0 1px; background:transparent; color:inherit; cursor:pointer; }
-.vocab-word:hover { background:#f8e5c2; }
-.reader-controls { margin:34px 0 0; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:center; gap:10px; }
-.main-listen, .replay-button, .reader-controls select { border:1px solid var(--line); border-radius:999px; padding:10px 15px; background:#fff; cursor:pointer; color:var(--ink); font-size:12px; }
-.main-listen { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
-.reader-controls select { padding-right:28px; }
-.reader-hint { margin:12px 0 0; text-align:center; color:var(--muted); font-size:12px; }
-.page-note { margin-top:35px; padding:15px 16px; background:var(--accent-soft); color:#58645a; font-size:13px; line-height:1.6; }
-.page-note span { margin-right:7px; font-weight:700; color:var(--accent); }
-
-.modal-layer { position:fixed; inset:0; z-index:30; background:rgba(20,24,20,.28); display:flex; align-items:flex-end; justify-content:center; padding:16px; }
-.word-popup { position:relative; width:min(100%,430px); max-height:78vh; overflow:auto; background:#fff; box-shadow:0 18px 50px rgba(0,0,0,.18); border-radius:18px 18px 8px 8px; }
-.popup-close { position:absolute; right:10px; top:10px; z-index:2; width:32px; height:32px; border:0; border-radius:50%; background:rgba(255,255,255,.9); cursor:pointer; font-size:22px; color:#555; }
-.word-image { max-width:100%; height:125px; object-fit:contain; display:block; margin: 0 auto;}
-.word-content { padding:20px; }
-.word-topline { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.word-topline h2 { margin:0; font-size:30px; letter-spacing:-.04em; }
-.word-topline span { color:var(--muted); font-size:13px; }
-.word-listen { width:38px; height:38px; border:1px solid var(--line); border-radius:50%; background:#fff; cursor:pointer; }
-.word-meaning { margin:15px 0; font-size:18px; }
-.word-example { padding:13px; background:#f7f6f0; display:grid; gap:5px; font-size:13px; line-height:1.5; }
-.word-example span { color:var(--muted); }
-.save-word { width:100%; margin-top:14px; border:0; border-radius:10px; padding:13px; background:var(--accent); color:#fff; cursor:pointer; font-weight:700; }
-.save-word.is-saved { background:#e9efe9; color:var(--accent); }
-
-.dictionary-shell { max-width:760px; margin:auto; min-height:100vh; padding:0 20px 70px; }
-.dictionary-header { height:65px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; border-bottom:1px solid var(--line); font-size:13px; }
-.dictionary-header > :last-child { justify-self:end; color:var(--muted); }
-.back-link { color:var(--accent); }
-.dictionary-intro { padding:48px 0 35px; }
-.dictionary-intro h1 { margin:0; font-size:46px; line-height:1; letter-spacing:-.05em; }
-.dictionary-intro > p:last-child { color:var(--muted); line-height:1.6; max-width:430px; }
-.word-list { display:grid; gap:10px; }
-.dictionary-card { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:17px; background:#fff; border:1px solid var(--line); }
-.dictionary-card h2 { margin:0 0 3px; font-size:22px; }
-.dictionary-card span { color:var(--muted); font-size:12px; }
-.dictionary-card p { margin:8px 0 0; font-size:14px; }
-.dictionary-card button { flex:0 0 auto; width:40px; height:40px; border:1px solid var(--line); background:#fff; border-radius:50%; cursor:pointer; }
-.empty-dictionary { border:1px dashed #d7d5cc; padding:50px 20px; text-align:center; color:var(--muted); }
-.empty-dictionary div { font-size:30px; color:var(--accent); }
-.empty-dictionary p { color:var(--ink); font-weight:700; margin:10px 0 5px; }
-.empty-dictionary span { font-size:13px; }
-
-@media (max-width:600px) {
-  .topbar { padding:17px 18px; }
-  .home-intro { margin:35px auto 28px; padding:0 18px; }
-  .home-intro h1 { font-size:48px; }
-  .story-list { padding:0 18px 45px; }
-  .story-card { grid-template-columns:1fr; gap:16px; padding:12px; }
-  .story-card img { aspect-ratio:16/9; }
-  .story-card h2 { font-size:25px; }
-  .reader-cover-wrap { height:25svh; min-height:150px; max-height:235px; }
-  .story-page { padding:24px 17px 60px; }
-  .story-heading { align-items:start; }
-  .story-heading h2 { font-size:19px; }
-  .story-text { font-size:17px; line-height:1.82; padding-top:21px; }
-  .sentence-block { padding-right:36px; }
-  .sentence-audio { width:28px; height:28px; }
-  .reader-controls { gap:7px; }
-  .main-listen, .replay-button, .reader-controls select { padding:9px 12px; font-size:11px; }
-  .dictionary-intro { padding:38px 0 28px; }
-  .dictionary-intro h1 { font-size:42px; }
+:root {
+  --ink: #20221f;
+  --muted: #777a72;
+  --line: #e6e4dc;
+  --paper: #fbfaf5;
+  --accent: #48644f;
+  --accent-soft: #e8efe8;
+  --warm: #f0c889;
 }
 
-/* v3 navigation + word highlighting */
-.story-page { padding-bottom: 105px; }
-.vocab-word { transition: background .12s ease, color .12s ease; }
-.vocab-word.word-active { background:#f0c889; border-bottom-color:#d39c50; border-radius:4px; box-shadow:0 1px 0 rgba(0,0,0,.03); }
-.sentence-active { background:#f4f6f1; }
-.sentence-translation { margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.6; }
-.translation-link { display:block; margin:18px auto 0; border:0; border-bottom:1px dashed var(--accent); background:transparent; color:var(--accent); font-size:12px; cursor:pointer; padding:4px 2px; }
-.reader-bottom-nav, .site-bottom-nav { position:fixed; left:50%; transform:translateX(-50%); bottom:12px; z-index:25; width:min(calc(100% - 24px), 560px); background:rgba(255,255,255,.94); border:1px solid rgba(220,218,208,.95); box-shadow:0 10px 32px rgba(28,32,28,.13); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-radius:18px; }
-.reader-bottom-nav { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap: 1px; padding:7px; }
-.nav-control { min-width:0; border:0; background:transparent; color:var(--muted); border-radius:13px; padding:8px 6px; display:flex; align-items:center; justify-content:center; gap:7px; cursor:pointer; font-size:11px; }
-.nav-control:hover, .nav-control.active { background:var(--accent-soft); color:var(--accent); }
-.nav-icon { font-size:15px; line-height:1; }
-.speed-control { position:relative; }
-.speed-control select { appearance:none; border:0; background:transparent; color:inherit; font-size:11px; padding:0; cursor:pointer; outline:none; }
-.site-bottom-nav { display:grid; grid-template-columns:1fr 1fr 1fr; padding:7px; }
-.site-nav-item { border:0; background:transparent; color:var(--muted); border-radius:13px; min-width:0; padding:8px 5px; display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10px; cursor:pointer; }
-.site-nav-item:hover, .site-nav-item[href="/dictionary"]:hover { background:var(--accent-soft); color:var(--accent); }
-.site-nav-icon { font-size:18px; line-height:1; }
-.site-nav-item.coming-soon { opacity:.48; cursor:default; }
-.dictionary-shell { padding-bottom:105px; }
-.dictionary-card { grid-template-columns:64px 1fr auto; align-items:center; }
-.dictionary-card > img { width:80px; height:80px; object-fit:cover; border-radius:10px; background:#f4f2eb; }
-.dictionary-word-main h2 { margin-bottom:3px; }
-.dictionary-actions { display:flex; gap:6px; }
-.dictionary-actions button { width:36px; height:36px; }
-
-@media (min-width: 701px) {
-  .reader-bottom-nav { bottom:18px; }
-  .site-bottom-nav { bottom:18px; }
+* {
+  box-sizing: border-box;
 }
 
-@media (max-width:600px) {
-  .reader-cover-wrap { height:15svh; min-height:155px; max-height:235px; }
-  .reader-cover img { object-position:center; }
-  .story-text { font-size:17px; line-height:1.9; }
-  .reader-bottom-nav, .site-bottom-nav { bottom:10px; width:calc(100% - 20px); border-radius:17px; }
-  .dictionary-card { grid-template-columns:52px 1fr auto; padding:13px; gap:11px; }
-  .dictionary-card > img { width:80px; height:80px; }
-  .dictionary-word-main h2 { font-size:19px; }
-  .dictionary-word-main p { font-size:13px; }
-  .dictionary-actions { flex-direction:column; }
+html {
+  scroll-behavior: smooth;
 }
 
-.story-word { color:inherit; }
-.story-word.word-active { background:#f0c889; border-radius:4px; box-shadow:0 1px 0 rgba(0,0,0,.03); }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button, select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   HOME PAGE — story list
+   ========================================================= */
+
+
+.topbar {
+  max-width: 1050px;
+  margin: auto;
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: -.03em;
+}
+
+.dictionary-link {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.home-shell {
+  min-height: 100vh;
+}
+
+.home-intro {
+  max-width: 1050px;
+  margin: 50px auto 35px;
+  padding: 0 24px;
+}
+
+.home-intro h1 {
+  margin: 0;
+  font-size: clamp(42px,7vw,72px);
+  line-height: .98;
+  letter-spacing: -.055em;
+}
+
+.home-intro > p:last-child {
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.story-list {
+  max-width: 1050px;
+  margin: auto;
+  padding: 0 24px 60px;
+  display: grid;
+  gap: 18px;
+}
+
+.story-card {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 26px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #fff;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.story-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.06);
+}
+
+.story-card img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+}
+
+.card-kicker {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.story-card h2 {
+  margin: 8px 0;
+  font-size: 30px;
+  letter-spacing: -.03em;
+}
+
+.story-card p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.story-card span {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   DICTIONARY PAGE
+   ========================================================= */
+
+
+.dictionary-shell {
+  max-width: 760px;
+  margin: auto;
+  min-height: 100vh;
+  padding: 0 20px 70px;
+  padding-bottom: 105px;
+}
+
+.dictionary-header {
+  height: 65px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.dictionary-header > :last-child {
+  justify-self: end;
+  color: var(--muted);
+}
+
+.back-link {
+  color: var(--accent);
+}
+
+.dictionary-intro {
+  padding: 48px 0 35px;
+}
+
+.dictionary-intro h1 {
+  margin: 0;
+  font-size: 46px;
+  line-height: 1;
+  letter-spacing: -.05em;
+}
+
+.dictionary-intro > p:last-child {
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 430px;
+}
+
+.word-list {
+  display: grid;
+  gap: 10px;
+}
+
+.dictionary-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 17px;
+  background: #fff;
+  border: 1px solid var(--line);
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+}
+
+.dictionary-card > img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #f4f2eb;
+}
+
+.dictionary-card h2 {
+  margin: 0 0 3px;
+  font-size: 22px;
+}
+
+.dictionary-card span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dictionary-card p {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.dictionary-card button {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.dictionary-word-main h2 {
+  margin-bottom: 3px;
+}
+
+.dictionary-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.dictionary-actions button {
+  width: 36px;
+  height: 36px;
+}
+
+.empty-dictionary {
+  border: 1px dashed #d7d5cc;
+  padding: 50px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.empty-dictionary div {
+  font-size: 30px;
+  color: var(--accent);
+}
+
+.empty-dictionary p {
+  color: var(--ink);
+  font-weight: 700;
+  margin: 10px 0 5px;
+}
+
+.empty-dictionary span {
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   SITE-WIDE BOTTOM NAVIGATION (home / dictionary)
+   ========================================================= */
+
+
+.reader-bottom-nav, .site-bottom-nav {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12px;
+  z-index: 25;
+  width: min(calc(100% - 24px), 560px);
+  background: rgba(255,255,255,.94);
+  border: 1px solid rgba(220,218,208,.95);
+  box-shadow: 0 10px 32px rgba(28,32,28,.13);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 18px;
+}
+
+.site-bottom-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 7px;
+}
+
+.site-nav-item {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 13px;
+  min-width: 0;
+  padding: 8px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.site-nav-item:hover, .site-nav-item[href="/dictionary"]:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.site-nav-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.site-nav-item.coming-soon {
+  opacity: .48;
+  cursor: default;
+}
+
+
+/* =========================================================
+   STORY READER — shell & cover
+   ========================================================= */
+
 
 .reader-shell {
   --paper: #fbfaf6;
@@ -158,480 +345,13 @@ a { color:inherit; text-decoration:none; }
   --line: #e9e7df;
   --accent: #30342e;
   min-height: 100svh;
-  background: var(--paper);
-  color: var(--ink);
-  padding-bottom: 110px;
-}
-
-.reader-cover-wrap {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  height: 25svh;
-  min-height: 155px;
-  max-height: 250px;
-  background: #e9e6dd;
-  overflow: hidden;
-}
-
-.reader-cover {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.reader-cover img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.reader-cover::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, .18), transparent 45%, rgba(0, 0, 0, .35));
-  pointer-events: none;
-}
-
-.cover-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 14px 16px;
-  color: white;
-}
-
-.back-button {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(20, 22, 19, .5);
-  color: white;
-  text-decoration: none;
-  font-size: 20px;
-  backdrop-filter: blur(8px);
-}
-
-.cover-title {
-  text-align: right;
-}
-
-.cover-title p {
-  margin: 0 0 1px;
-  font-size: 11px;
-  opacity: .82;
-}
-
-.cover-title h1 {
-  margin: 0;
-  font-size: clamp(22px, 7vw, 34px);
-  font-weight: 500;
-  letter-spacing: -.03em;
-}
-
-.story-page {
-  width: min(760px, calc(100% - 28px));
-  margin: 0 auto;
-  padding: 30px 0 20px;
-}
-
-.story-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 28px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--line);
-}
-
-.story-heading h2 {
-  margin: 5px 0 0;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.35;
-}
-
-.story-heading>span {
-  flex: 0 0 auto;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.eyebrow {
-  margin: 0;
-  color: #9b9d96;
-  font-size: 9px;
-  letter-spacing: .12em;
-}
-
-.story-text {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 17px;
-  line-height: 1.95;
-}
-
-.sentence-block {
-  margin: 0 0 22px;
-  padding: 10px 10px 10px 12px;
-  border-radius: 12px;
-  transition: background .35s ease, transform .35s ease;
-}
-
-.sentence-block.sentence-active {
-  background: rgba(237, 235, 224, .72);
-}
-
-.sentence-block p {
-  margin: 0;
-}
-
-.story-word {
-  display: inline;
-  padding: 2px 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  line-height: inherit;
-  white-space: pre-wrap;
-}
-
-.story-word.word-active {
-  position: relative;
-  z-index: 0;
-  padding: 2px 4px;
-  margin: 0 -4px;
-  border-radius: 7px;
-  background: #efc982;
-  box-shadow: 0 2px 10px rgba(203, 157, 75, .18);
-  animation: liquid-word-in .24s cubic-bezier(.2, .85, .3, 1);
-}
-
-@keyframes liquid-word-in {
-  0% {
-    opacity: .45;
-    transform: scaleX(.72) scaleY(.82);
-    border-radius: 14px;
-  }
-
-  55% {
-    transform: scaleX(1.06) scaleY(1.04);
-    border-radius: 9px;
-  }
-
-  100% {
-    opacity: 1;
-    transform: scaleX(1) scaleY(1);
-    border-radius: 7px;
-  }
-}
-
-.vocab-word {
-  cursor: pointer;
-  border-bottom: 1px dotted rgba(45, 48, 42, .55);
-}
-
-.vocab-word.word-active {
-  border-bottom-color: transparent;
-}
-
-.sentence-translation {
-  margin-top: 7px !important;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.reader-bottom-nav {
-  position: fixed;
-  left: 50%;
-  bottom: max(10px, env(safe-area-inset-bottom));
-  z-index: 30;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  align-items: center;
-  width: min(calc(100% - 24px), 540px);
-  min-height: 62px;
-  padding: 7px 8px 7px 76px;
-  transform: translateX(-50%);
-  border: 1px solid rgba(218, 216, 207, .96);
-  border-radius: 19px;
-  background: rgba(255, 255, 255, .94);
-  box-shadow: 0 12px 35px rgba(30, 32, 28, .14);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.reader-play-fab {
-  position: absolute;
-  left: -4px;
-  top: 50%;
-  width: 66px;
-  height: 66px;
-  transform: translateY(-50%);
-  display: grid;
-  place-items: center;
-  border: 5px solid var(--paper);
-  border-radius: 50%;
-  background: var(--accent);
-  color: white;
-  font-size: 17px;
-  box-shadow: 0 8px 22px rgba(25, 27, 24, .2);
-  cursor: pointer;
-}
-
-.reader-play-fab.active {
-  transform: translateY(-50%) scale(1.04);
-}
-
-.reader-play-fab:active {
-  transform: translateY(-50%) scale(.96);
-}
-
-.nav-control {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 48px;
-  padding: 6px 8px;
-  border: 0;
-  border-radius: 13px;
-  background: transparent;
-  color: #777a72;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.nav-control:hover,
-.nav-control.active {
-  background: #f1f0e9;
-  color: #2e312c;
-}
-
-.nav-icon {
-  font-size: 16px;
-  line-height: 1;
-}
-
-.speed-control select {
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-
-.modal-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: grid;
-  place-items: end center;
-  padding: 16px;
-  background: rgba(25, 27, 24, .2);
-  backdrop-filter: blur(3px);
-}
-
-.word-popup {
-  position: relative;
-  width: min(440px, 100%);
-  overflow: hidden;
-  border-radius: 22px;
-  background: white;
-  box-shadow: 0 22px 70px rgba(25, 27, 24, .22);
-  animation: popup-in .24s cubic-bezier(.2, .85, .3, 1);
-}
-
-@keyframes popup-in {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.word-image {
-  display: block;
-  max-width: 100%;
-  height: 130px;
-  object-fit: contain;
-  background: #f1efe7;
-  margin: 0 auto;
-}
-
-.word-content {
-  padding: 18px 20px 20px;
-}
-
-.popup-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1;
-  width: 32px;
-  height: 32px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .88);
-  color: #666;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.word-topline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.word-topline h2 {
-  margin: 0;
-  font-size: 29px;
-  font-weight: 600;
-}
-
-.word-topline span {
-  color: #92948d;
-  font-size: 12px;
-}
-
-.word-listen {
-  width: 38px;
-  height: 38px;
-  border: 1px solid #e4e2da;
-  border-radius: 50%;
-  background: #fff;
-  cursor: pointer;
-}
-
-.word-meaning {
-  margin: 15px 0 0;
-  font-size: 17px;
-}
-
-.word-example {
-  display: grid;
-  gap: 5px;
-  margin-top: 15px;
-  padding-top: 13px;
-  border-top: 1px solid #eee;
-}
-
-.word-example strong {
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.word-example span {
-  color: #888;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.save-word {
-  width: 100%;
-  margin-top: 16px;
-  padding: 12px;
-  border: 0;
-  border-radius: 12px;
-  background: #242721;
-  color: #fff;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.save-word.is-saved {
-  background: #eaf0e7;
-  color: #3f6040;
-}
-
-@media (max-width: 600px) {
-  .reader-cover-wrap {
-    height: 25svh;
-    min-height: 145px;
-    max-height: 220px;
-  }
-
-  .story-page {
-    width: calc(100% - 22px);
-    padding-top: 22px;
-  }
-
-  .story-heading {
-    align-items: flex-start;
-  }
-
-  .story-heading h2 {
-    font-size: 16px;
-  }
-
-  .story-text {
-    font-size: 16.5px;
-    line-height: 1.9;
-  }
-
-  .sentence-block {
-    margin-bottom: 17px;
-    padding: 9px 9px 9px 10px;
-  }
-
-  .reader-bottom-nav {
-    width: calc(100% - 20px);
-    min-height: 60px;
-    padding-left: 72px;
-    border-radius: 18px;
-  }
-
-  .reader-play-fab {
-    width: 62px;
-    height: 62px;
-    left: -3px;
-  }
-
-  .nav-control {
-    font-size: 10px;
-    gap: 4px;
-    padding-left: 4px;
-    padding-right: 4px;
-  }
-
-  .nav-icon {
-    font-size: 15px;
-  }
-
-  .modal-layer {
-    padding: 10px;
-  }
-}
-
-/* =========================================================
-   STORY READER — FINAL CLEAN OVERRIDES
-   ========================================================= */
-
-.reader-shell {
-  min-height: 100svh;
   padding-bottom: 110px;
   background: #fbfaf6;
   color: #252721;
 }
 
 .reader-cover-wrap {
+  background: #e9e6dd;
   position: sticky;
   top: 0;
   z-index: 40;
@@ -661,15 +381,11 @@ a { color:inherit; text-decoration:none; }
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,.18),
-    transparent 45%,
-    rgba(0,0,0,.42)
-  );
+  background: linear-gradient( to bottom, rgba(0,0,0,.18), transparent 45%, rgba(0,0,0,.42) );
 }
 
 .cover-overlay {
+  align-items: flex-end;
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -680,8 +396,17 @@ a { color:inherit; text-decoration:none; }
   padding: 16px 20px;
 }
 
-/* Nút Back điệu đà hơn, tròn đều và nằm bên trái */
+.back-button, .cover-dictionary {
+  width: max-content;
+  padding: 8px 11px;
+  background: rgba(255,255,255,.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.25);
+  font-size: 12px;
+}
+
 .back-button {
+  place-items: center;
   width: 50px;
   height: 38px;
   display: flex;
@@ -697,7 +422,6 @@ a { color:inherit; text-decoration:none; }
   text-decoration: none;
   transition: all 0.2s ease;
   align-self: flex-start;
-  /* Đảm bảo nút nằm góc trái */
 }
 
 .back-button:hover {
@@ -716,7 +440,6 @@ a { color:inherit; text-decoration:none; }
   margin-top: -34px;
 }
 
-/* Đưa phần tiêu đề và tác giả ra giữa, căn giữa chữ */
 .cover-title {
   width: 100%;
   text-align: center;
@@ -769,13 +492,22 @@ a { color:inherit; text-decoration:none; }
   transition: width .12s linear;
 }
 
+
+/* =========================================================
+   STORY READER — story text & word highlighting
+   ========================================================= */
+
+
 .story-page {
+  max-width: 760px;
+  padding-bottom: 105px;
   width: min(760px, calc(100% - 28px));
   margin: 0 auto;
   padding: 28px 0 30px;
 }
 
 .story-heading {
+  margin-bottom: 28px;
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -785,18 +517,23 @@ a { color:inherit; text-decoration:none; }
 }
 
 .story-heading h2 {
+  letter-spacing: -.025em;
+  line-height: 1.35;
   margin: 4px 0 0;
   font-size: 19px;
   font-weight: 500;
 }
 
 .story-heading > span {
+  flex: 0 0 auto;
   color: #85887f;
   font-size: 11px;
   white-space: nowrap;
 }
 
 .eyebrow {
+  font-weight: 700;
+  text-transform: uppercase;
   margin: 0;
   color: #999b94;
   font-size: 9px;
@@ -804,6 +541,7 @@ a { color:inherit; text-decoration:none; }
 }
 
 .story-text {
+  letter-spacing: .002em;
   padding-top: 22px;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 17px;
@@ -823,13 +561,14 @@ a { color:inherit; text-decoration:none; }
   background: rgba(237,235,224,.72);
 }
 
+.sentence-active {
+  background: #f4f6f1;
+}
+
 .sentence-block p {
   margin: 0;
 }
 
-/* IMPORTANT:
-   vocab-word is only the dotted vocabulary affordance.
-   It must NOT have a background by default. */
 .story-word {
   display: inline;
   padding: 0;
@@ -841,6 +580,27 @@ a { color:inherit; text-decoration:none; }
   white-space: pre-wrap;
 }
 
+.vocab-word {
+  border: 0;
+  padding: 0 1px;
+  background: transparent;
+  color: inherit;
+  transition: background .12s ease, color .12s ease;
+  cursor: pointer;
+  border-bottom: 1px dotted rgba(45, 48, 42, .55);
+}
+
+.vocab-word:hover {
+  background: #f8e5c2;
+}
+
+.vocab-word.word-active {
+  background: #f0c889;
+  border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+  border-bottom-color: transparent;
+}
+
 .story-word.vocab-word {
   cursor: pointer;
   border-bottom: 1.5px dashed #f1a10d;
@@ -850,8 +610,9 @@ a { color:inherit; text-decoration:none; }
   background: rgba(240,200,137,.18);
 }
 
-/* Only the EXACT currently spoken word gets the yellow highlight. */
 .story-word.word-active {
+  position: relative;
+  z-index: 0;
   display: inline-block;
   padding: 1px 4px;
   margin: 0 -4px;
@@ -865,24 +626,8 @@ a { color:inherit; text-decoration:none; }
   border-bottom-color: transparent;
 }
 
-@keyframes liquid-word-in {
-  0% {
-    opacity: .45;
-    transform: scaleX(.72) scaleY(.82);
-    border-radius: 14px;
-  }
-  55% {
-    transform: scaleX(1.06) scaleY(1.04);
-    border-radius: 9px;
-  }
-  100% {
-    opacity: 1;
-    transform: scaleX(1) scaleY(1);
-    border-radius: 6px;
-  }
-}
-
 .sentence-audio {
+  font-size: 11px;
   position: absolute;
   top: 11px;
   right: 5px;
@@ -897,10 +642,23 @@ a { color:inherit; text-decoration:none; }
 }
 
 .sentence-translation {
+  margin-top: 7px !important;
   margin: 8px 0 0 !important;
   color: #85887f;
   font-size: 13px;
   line-height: 1.6;
+}
+
+.translation-link {
+  display: block;
+  margin: 18px auto 0;
+  border: 0;
+  border-bottom: 1px dashed var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 2px;
 }
 
 .reader-page-navigation {
@@ -950,11 +708,95 @@ a { color:inherit; text-decoration:none; }
   opacity: 0.9;
 }
 
-/* Reader bottom bar */
+@keyframes liquid-word-in {
+  0% {
+    opacity: .45;
+    transform: scaleX(.72) scaleY(.82);
+    border-radius: 14px;
+  }
+  55% {
+    transform: scaleX(1.06) scaleY(1.04);
+    border-radius: 9px;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1) scaleY(1);
+    border-radius: 6px;
+  }
+}
+
+
+/* =========================================================
+   STORY READER — legacy inline controls
+   (older control bar; still styled, in case still in use)
+   ========================================================= */
+
+
+.reader-controls {
+  margin: 34px 0 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.main-listen, .replay-button, .reader-controls select {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 15px;
+  background: #fff;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.main-listen {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.reader-controls select {
+  padding-right: 28px;
+}
+
+.reader-hint {
+  margin: 12px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.page-note {
+  margin-top: 35px;
+  padding: 15px 16px;
+  background: var(--accent-soft);
+  color: #58645a;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.page-note span {
+  margin-right: 7px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+
+/* =========================================================
+   STORY READER — floating bottom nav & play button
+   ========================================================= */
+
+
 .reader-bottom-nav {
+  gap: 1px;
   position: fixed;
   left: 50%;
-  bottom: max(10px, env(safe-area-inset-bottom));
+  bottom: max(20px, env(safe-area-inset-bottom));
   z-index: 50;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -997,6 +839,48 @@ a { color:inherit; text-decoration:none; }
   transform: translateY(-50%) scale(.96);
 }
 
+.nav-control {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  color: #777a72;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.nav-control:hover, .nav-control.active {
+  background: #f1f0e9;
+  color: #2e312c;
+}
+
+.nav-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.speed-control {
+  position: relative;
+}
+
+.speed-control select {
+  appearance: none;
+  font-size: 11px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
 .reader-bottom-nav .nav-control {
   min-width: 0;
   min-height: 46px;
@@ -1005,16 +889,15 @@ a { color:inherit; text-decoration:none; }
   justify-content: center;
   gap: 5px;
   padding: 6px;
-  border: 0;
+  border-bottom: solid 2px rgba(0, 0, 0, 0.04);
   border-radius: 13px;
   background: transparent;
   color: #777a72;
-  font-size: 10px;
+  font-size: 15px;
   cursor: pointer;
 }
 
-.reader-bottom-nav .nav-control:hover,
-.reader-bottom-nav .nav-control.active {
+.reader-bottom-nav .nav-control:hover, .reader-bottom-nav .nav-control.active {
   background: #f1f0e9;
   color: #30342e;
 }
@@ -1033,8 +916,15 @@ a { color:inherit; text-decoration:none; }
   cursor: pointer;
 }
 
-/* Word popup */
+
+/* =========================================================
+   WORD POPUP (vocabulary modal)
+   ========================================================= */
+
+
 .modal-layer {
+  align-items: flex-end;
+  justify-content: center;
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -1046,6 +936,7 @@ a { color:inherit; text-decoration:none; }
 }
 
 .word-popup {
+  animation: popup-in .24s cubic-bezier(.2, .85, .3, 1);
   position: relative;
   width: min(440px, 130%);
   max-height: 80vh;
@@ -1071,6 +962,7 @@ a { color:inherit; text-decoration:none; }
 }
 
 .word-image {
+  background: #f1efe7;
   display: block;
   max-width: 100%;
   height: 130px;
@@ -1090,6 +982,8 @@ a { color:inherit; text-decoration:none; }
 }
 
 .word-topline h2 {
+  letter-spacing: -.04em;
+  font-weight: 600;
   margin: 0;
   font-size: 29px;
 }
@@ -1114,6 +1008,10 @@ a { color:inherit; text-decoration:none; }
 }
 
 .word-example {
+  padding: 13px;
+  background: #f7f6f0;
+  font-size: 13px;
+  line-height: 1.5;
   display: grid;
   gap: 5px;
   margin-top: 15px;
@@ -1132,34 +1030,205 @@ a { color:inherit; text-decoration:none; }
   line-height: 1.5;
 }
 
+.save-word {
+  font-weight: 700;
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: #242721;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.save-word.is-saved {
+  background: #eaf0e7;
+  color: #3f6040;
+}
+
+@keyframes popup-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+
+/* =========================================================
+   RESPONSIVE — ≤600px
+   ========================================================= */
+
+
 @media (max-width: 600px) {
+  .topbar {
+    padding: 17px 18px;
+  }
+
+  .home-intro {
+    margin: 25px auto 30px 28px;
+    padding: 0 18px;
+  }
+
+  .home-intro h1 {
+    font-size: 48px;
+  }
+
+  .story-list {
+    padding: 0 18px 45px;
+    margin-bottom: 50px;
+  }
+
+  .story-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 12px;
+  }
+
+  .story-card img {
+    aspect-ratio: 16/9;
+  }
+
+  .story-card h2 {
+    font-size: 25px;
+  }
+
+  .dictionary-intro {
+    padding: 38px 0 28px;
+  }
+
+  .dictionary-intro h1 {
+    font-size: 42px;
+  }
+
+  .dictionary-card {
+    grid-template-columns: 52px 1fr auto;
+    padding: 13px;
+    gap: 11px;
+  }
+
+  .dictionary-card > img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .dictionary-word-main h2 {
+    font-size: 19px;
+  }
+
+  .dictionary-word-main p {
+    font-size: 13px;
+  }
+
+  .dictionary-actions {
+    flex-direction: column;
+  }
+
+  .reader-bottom-nav, .site-bottom-nav {
+    bottom: 10px;
+    width: calc(100% - 20px);
+    border-radius: 17px;
+  }
+
   .reader-cover-wrap {
     height: 25svh;
     min-height: 145px;
     max-height: 220px;
   }
 
+  .reader-cover img {
+    object-position: center;
+  }
+
   .story-page {
+    padding: 24px 17px 60px;
     width: calc(100% - 22px);
     padding-top: 22px;
   }
 
+  .story-heading {
+    align-items: flex-start;
+  }
+
+  .story-heading h2 {
+    font-size: 16px;
+  }
+
   .story-text {
+    padding-top: 21px;
     font-size: 16.5px;
     line-height: 1.9;
   }
 
   .sentence-block {
+    padding-right: 36px;
     margin-bottom: 12px;
     padding: 9px 40px 9px 9px;
   }
 
+  .sentence-audio {
+    width: 28px;
+    height: 28px;
+  }
+
+  .reader-controls {
+    gap: 7px;
+  }
+
+  .main-listen, .replay-button, .reader-controls select {
+    padding: 9px 12px;
+    font-size: 11px;
+  }
+
   .reader-bottom-nav {
+    min-height: 60px;
+    padding-left: 72px;
+    border-radius: 18px;
     width: calc(100% - 20px);
   }
 
   .reader-play-fab {
+    left: -3px;
     width: 62px;
     height: 62px;
   }
+
+  .nav-control {
+    font-size: 10px;
+    gap: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .nav-icon {
+    font-size: 15px;
+  }
+
+  .modal-layer {
+    padding: 10px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — ≥701px
+   ========================================================= */
+
+
+@media (min-width: 701px) {
+  .reader-bottom-nav {
+    bottom: 18px;
+  }
+
+  .site-bottom-nav {
+    bottom: 18px;
+  }
+
 }

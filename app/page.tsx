@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <main className="home-shell">
       <header className="topbar">
-        <Link href={getAssetPath("/")} className="brand">story english</Link>
+        <Link href={getAssetPath("/")} className="brand">Story Me</Link>
       </header>
 
       <section className="home-intro">
