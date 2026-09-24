@@ -11,6 +11,7 @@ export const stories: Story[] = [
     author: "Homer",
     coverImage: "/stories/odyssey/cover.svg",
     description: "A gentle beginner-friendly retelling about a long journey home.",
+    level: "normal",
     pages: odysseyPages,
   },
   {
@@ -19,6 +20,7 @@ export const stories: Story[] = [
     author: "Dr. Hansaji Yogendra",
     coverImage: "/stories/happy-people-happy-food/cover.jpg",
     description: "The Sattvik Kitchen - The Art and Science of Healthy Living",
+    level: "normal",
     pages: happypeoplehappyfoodPages,
   },
   {
@@ -27,6 +29,7 @@ export const stories: Story[] = [
     author: "Sieu Nhan Hong",
     coverImage: "/stories/three-friends-conversation/cover.png",
     description: "I stole story on Facebook, i think it will be funny",
+    level: "super-easy",
     pages: threefriendsconversationPages,
   },
 ];

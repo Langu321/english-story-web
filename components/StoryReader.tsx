@@ -514,7 +514,7 @@ export function StoryReader({ story }: { story: Story }) {
         </button>
 
         <button type="button" onClick={replayCurrent} className="nav-control">
-          <span className="nav-icon" style={{ fontSize: '25px' }}>↻</span>
+          <span className="nav-icon">↻</span>
           <span>Replay</span>
         </button>
 

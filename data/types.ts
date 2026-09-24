@@ -23,11 +23,22 @@ export type StoryPage = {
   sentences: StorySentence[];
 };
 
+export const storyLevelLabels = {
+  "super-easy": "Super Easy",
+  easy: "Easy",
+  normal: "Normal",
+  hard: "Hard",
+  "super-hard": "Super Hard",
+} as const;
+
+export type StoryLevel = keyof typeof storyLevelLabels;
+
 export type Story = {
   id: string;
   title: string;
   author: string;
   coverImage: string;
   description: string;
+  level: StoryLevel;
   pages: StoryPage[];
 };

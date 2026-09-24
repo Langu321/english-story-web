@@ -1,29 +1,4 @@
 /* =========================================================
-   globals.css — bản viết lại, đã loại bỏ trùng lặp
-   -----------------------------------------------------------
-   File gốc định nghĩa lại RẤT NHIỀU selector cùng tên nhiều lần
-   (ví dụ .reader-shell, .word-popup, .story-word... được viết
-   lại 3-9 lần rải rác trong file). Vì CSS "ai khai báo sau thì
-   thắng", giao diện hiển thị hiện tại thực chất chỉ do LẦN
-   KHAI BÁO CUỐI CÙNG của mỗi selector quyết định — các lần khai
-   báo trước gần như là code chết.
-
-   Bản này đã gộp từng selector về đúng 1 khai báo duy nhất
-   (giữ đúng giá trị cuối cùng có hiệu lực trên UI), sắp xếp lại
-   theo từng khu vực chức năng, và bỏ toàn bộ phần bị đè/trùng.
-   Đã verify từng property bằng script để đảm bảo giá trị áp
-   dụng thực tế KHÔNG đổi so với file gốc.
-
-   Ghi chú nhỏ giữ nguyên hành vi cũ (không sửa vì sợ đổi outcome):
-   - .dictionary-card vẫn dùng display:flex nhưng có kèm
-     grid-template-columns — thuộc tính grid này hiện không có
-     tác dụng gì (vì display là flex), có thể là code thừa từ
-     một bản thiết kế cũ, an toàn để xoá nếu bạn xác nhận không
-     cần.
-   ========================================================= */
-
-
-/* =========================================================
    DESIGN TOKENS & RESET
    ========================================================= */
 
@@ -36,6 +11,9 @@
   --accent: #48644f;
   --accent-soft: #e8efe8;
   --warm: #f0c889;
+  --nav-bg: #fffefb;
+  --nav-border: #deddd5;
+  --nav-shadow: 0 8px 24px rgba(40, 43, 37, .11);
 }
 
 * {
@@ -70,16 +48,17 @@ a {
 
 .topbar {
   max-width: 1050px;
-  margin: auto;
-  padding: 22px 24px;
+  margin: 0 auto;
+  padding: 18px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .brand {
+  color: var(--accent);
   font-weight: 700;
-  letter-spacing: -.03em;
+  letter-spacing: -.02em;
 }
 
 .dictionary-link {
@@ -89,11 +68,12 @@ a {
 
 .home-shell {
   min-height: 100vh;
+  padding-bottom: 92px;
 }
 
 .home-intro {
   max-width: 1050px;
-  margin: 50px auto 35px;
+  margin: 42px auto 34px;
   padding: 0 24px;
 }
 
@@ -101,19 +81,22 @@ a {
   margin: 0;
   font-size: clamp(42px,7vw,72px);
   line-height: .98;
-  letter-spacing: -.055em;
+  letter-spacing: -.045em;
+  text-wrap: balance;
 }
 
 .home-intro > p:last-child {
+  max-width: 420px;
   margin-top: 20px;
   color: var(--muted);
   font-size: 16px;
+  line-height: 1.65;
 }
 
 .story-list {
   max-width: 1050px;
   margin: auto;
-  padding: 0 24px 60px;
+  padding: 0 24px 28px;
   display: grid;
   gap: 18px;
 }
@@ -124,13 +107,16 @@ a {
   gap: 26px;
   padding: 18px;
   border: 1px solid var(--line);
-  background: #fff;
-  transition: transform .2s, box-shadow .2s;
+  border-radius: 8px;
+  background: #fffefb;
+  box-shadow: 0 5px 18px rgba(38,43,36,.055);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
 .story-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0,0,0,.06);
+  border-color: #ccd6cd;
+  box-shadow: 0 10px 26px rgba(38,43,36,.09);
 }
 
 .story-card img {
@@ -138,13 +124,59 @@ a {
   aspect-ratio: 4/3;
   object-fit: cover;
   display: block;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(38,43,36,.09);
 }
 
-.card-kicker {
+.story-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.story-level {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 9px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.story-level--super-easy {
+  color: #27745a;
+  background: #e8f6ef;
+}
+
+.story-level--easy {
+  color: #4f7628;
+  background: #f0f6e5;
+}
+
+.story-level--intermediate {
+  color: #8a6518;
+  background: #fff5d8;
+}
+
+.story-level--hard {
+  color: #a14e20;
+  background: #fff0e6;
+}
+
+.story-level--super-hard {
+  color: #a33c3c;
+  background: #fceaea;
+}
+
+.story-sentence-count {
   color: var(--muted);
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: .08em;
 }
 
 .story-card h2 {
@@ -156,9 +188,10 @@ a {
 .story-card p {
   color: var(--muted);
   line-height: 1.6;
+  max-width: 620px;
 }
 
-.story-card span {
+.read-story-link {
   display: inline-block;
   margin-top: 12px;
   color: var(--accent);
@@ -310,20 +343,20 @@ a {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 12px;
+  bottom: max(14px, env(safe-area-inset-bottom));
   z-index: 25;
   width: min(calc(100% - 24px), 560px);
-  background: rgba(255,255,255,.94);
-  border: 1px solid rgba(220,218,208,.95);
-  box-shadow: 0 10px 32px rgba(28,32,28,.13);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--nav-border);
   border-radius: 18px;
+  background: var(--nav-bg);
+  box-shadow: var(--nav-shadow);
 }
 
 .site-bottom-nav {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  min-height: 64px;
   padding: 7px;
 }
 
@@ -331,7 +364,7 @@ a {
   border: 0;
   background: transparent;
   color: var(--muted);
-  border-radius: 13px;
+  border-radius: 12px;
   min-width: 0;
   padding: 8px 5px;
   display: flex;
@@ -340,6 +373,7 @@ a {
   gap: 4px;
   font-size: 10px;
   cursor: pointer;
+  transition: background .16s ease, color .16s ease, transform .16s ease;
 }
 
 .site-nav-item:hover, .site-nav-item[href="/dictionary"]:hover {
@@ -350,6 +384,7 @@ a {
 .site-nav-icon {
   font-size: 18px;
   line-height: 1;
+  color: inherit;
 }
 
 .site-nav-item.coming-soon {
@@ -534,7 +569,7 @@ a {
 .story-heading {
   margin-bottom: 28px;
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
   padding-bottom: 17px;
@@ -818,46 +853,56 @@ a {
 
 
 .reader-bottom-nav {
-  gap: 4px;
   position: fixed;
   left: 50%;
-  bottom: max(20px, env(safe-area-inset-bottom));
   z-index: 50;
+
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
-  width: min(calc(100% - 20px), 540px);
-  min-height: 60px;
-  padding: 7px 8px 7px 72px;
+  gap: 4px;
+
+  width: min(calc(100% - 24px), 560px);
+  min-height: 64px;
+
+  /* Tạo vùng riêng cho nút Play 80px */
+  padding: 7px 8px 7px 92px;
+
   transform: translateX(-50%);
-  border: 1px solid rgba(220,218,208,.95);
-  border-radius: 18px;
-  background: rgba(255,255,255,.94);
-  box-shadow: 0 10px 32px rgba(28,32,28,.13);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  overflow: visible;
 }
 
 .reader-play-fab {
   position: absolute;
-  left: -3px;
+  left: 6px;
   top: 50%;
-  width: 62px;
-  height: 62px;
+
+  box-sizing: border-box;
+  width: 70px;
+  height: 70px;
+  padding: 0;
+
   transform: translateY(-50%);
   display: grid;
   place-items: center;
-  border: 5px solid #fbfaf6;
+
+  border: 5px solid #fffefb;
   border-radius: 50%;
-  background: #30342e;
+  background: var(--accent);
   color: #fff;
-  font-size: 17px;
+
+  font-size: 21px;
+  line-height: 1;
   cursor: pointer;
-  box-shadow: 0 8px 22px rgba(25,27,24,.2);
+
+  box-shadow:
+    0 10px 22px rgba(47, 71, 54, 0.24),
+    0 3px 7px rgba(47, 71, 54, 0.12);
 }
 
 .reader-play-fab.active {
-  transform: translateY(-50%) scale(1.03);
+  transform: translateY(-50%) scale(1.04);
+  box-shadow: 0 9px 20px rgba(47, 71, 54, .3);
 }
 
 .reader-play-fab:active {
@@ -873,7 +918,7 @@ a {
   min-height: 48px;
   padding: 6px 8px;
   border: 0;
-  border-radius: 13px;
+  border-radius: 12px;
   background: transparent;
   color: #777a72;
   font-size: 11px;
@@ -881,8 +926,8 @@ a {
 }
 
 .nav-control:hover, .nav-control.active {
-  background: #f1f0e9;
-  color: #2e312c;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .nav-icon {
@@ -909,7 +954,7 @@ a {
 .reader-bottom-nav .nav-control,
 .reader-bottom-nav .speed-select {
   min-width: 0;
-  min-height: 46px;
+  min-height: 50px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -917,22 +962,21 @@ a {
   gap: 5px;
   padding: 6px;
   border: 0;
-  border-bottom: solid 2px rgba(0, 0, 0, 0.04);
-  border-radius: 13px;
+  border-radius: 12px;
   background: transparent;
-  color: #777a72;
+  color: var(--muted);
   font-size: 13px;
   font-family: inherit;
   line-height: 1;
   cursor: pointer;
-  transition: background .15s ease, color .15s ease;
+  transition: background .16s ease, color .16s ease, transform .16s ease;
 }
 
 .reader-bottom-nav .nav-control:hover,
 .reader-bottom-nav .nav-control.active,
 .reader-bottom-nav .speed-select:hover {
-  background: #f1f0e9;
-  color: #30342e;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .reader-bottom-nav .nav-icon {
@@ -958,14 +1002,14 @@ a {
   top: 50%;
   width: 8px;
   height: 8px;
-  border-right: 1.5px solid #777a72;
-  border-bottom: 1.5px solid #777a72;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
   transform: translateY(-65%) rotate(45deg);
   pointer-events: none;
 }
 
 .reader-bottom-nav .speed-select:hover::after {
-  border-color: #30342e;
+  border-color: currentColor;
 }
 
 .reader-bottom-nav .speed-select select {
@@ -1141,7 +1185,7 @@ a {
   }
 
   .home-intro {
-    margin: 35px auto 28px;
+    margin: 31px auto 28px;
     padding: 0 18px;
   }
 
@@ -1150,7 +1194,7 @@ a {
   }
 
   .story-list {
-    padding: 0 18px 45px;
+    padding: 0 18px 34px;
     margin-bottom: 50px;
   }
 
@@ -1200,9 +1244,9 @@ a {
   }
 
   .reader-bottom-nav, .site-bottom-nav {
-    bottom: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
     width: calc(100% - 20px);
-    border-radius: 17px;
+    border-radius: 16px;
   }
 
   .reader-cover-wrap {
@@ -1256,16 +1300,14 @@ a {
   }
 
   .reader-bottom-nav {
-    min-height: 60px;
+    min-height: 62px;
     padding-left: 72px;
-    border-radius: 18px;
+    border-radius: 16px;
     width: calc(100% - 20px);
   }
 
   .reader-play-fab {
-    left: -3px;
-    width: 62px;
-    height: 62px;
+    left: 6px;
   }
 
   .nav-control {
@@ -1285,6 +1327,21 @@ a {
 
 }
 
+/* =========================================================
+   RESPONSIVE — ≥380px
+   ========================================================= */
+
+@media (max-width: 380px) {
+  .reader-bottom-nav {
+    padding-left: 82px;
+  }
+
+  .reader-play-fab {
+    width: 60px;
+    height: 60px;
+    border-width: 4px;
+  }
+}
 
 /* =========================================================
    RESPONSIVE — ≥701px
