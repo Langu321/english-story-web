@@ -527,8 +527,8 @@ export function StoryReader({ story }: { story: Story }) {
           <span>{showTranslation ? "Hide VN" : "VN"}</span>
         </button>
 
-        <label>
-          <select className="nav-control speed-control"
+        <label className="speed-select">
+          <select
             value={speed}
             onChange={(event) => changeSpeed(Number(event.target.value))}
             aria-label="Reading speed"

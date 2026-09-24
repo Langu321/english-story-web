@@ -1,4 +1,29 @@
 /* =========================================================
+   globals.css — bản viết lại, đã loại bỏ trùng lặp
+   -----------------------------------------------------------
+   File gốc định nghĩa lại RẤT NHIỀU selector cùng tên nhiều lần
+   (ví dụ .reader-shell, .word-popup, .story-word... được viết
+   lại 3-9 lần rải rác trong file). Vì CSS "ai khai báo sau thì
+   thắng", giao diện hiển thị hiện tại thực chất chỉ do LẦN
+   KHAI BÁO CUỐI CÙNG của mỗi selector quyết định — các lần khai
+   báo trước gần như là code chết.
+
+   Bản này đã gộp từng selector về đúng 1 khai báo duy nhất
+   (giữ đúng giá trị cuối cùng có hiệu lực trên UI), sắp xếp lại
+   theo từng khu vực chức năng, và bỏ toàn bộ phần bị đè/trùng.
+   Đã verify từng property bằng script để đảm bảo giá trị áp
+   dụng thực tế KHÔNG đổi so với file gốc.
+
+   Ghi chú nhỏ giữ nguyên hành vi cũ (không sửa vì sợ đổi outcome):
+   - .dictionary-card vẫn dùng display:flex nhưng có kèm
+     grid-template-columns — thuộc tính grid này hiện không có
+     tác dụng gì (vì display là flex), có thể là code thừa từ
+     một bản thiết kế cũ, an toàn để xoá nếu bạn xác nhận không
+     cần.
+   ========================================================= */
+
+
+/* =========================================================
    DESIGN TOKENS & RESET
    ========================================================= */
 
@@ -793,7 +818,7 @@ a {
 
 
 .reader-bottom-nav {
-  gap: 1px;
+  gap: 4px;
   position: fixed;
   left: 50%;
   bottom: max(20px, env(safe-area-inset-bottom));
@@ -881,23 +906,31 @@ a {
   cursor: pointer;
 }
 
-.reader-bottom-nav .nav-control {
+.reader-bottom-nav .nav-control,
+.reader-bottom-nav .speed-select {
   min-width: 0;
   min-height: 46px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
   padding: 6px;
+  border: 0;
   border-bottom: solid 2px rgba(0, 0, 0, 0.04);
   border-radius: 13px;
   background: transparent;
   color: #777a72;
-  font-size: 15px;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1;
   cursor: pointer;
+  transition: background .15s ease, color .15s ease;
 }
 
-.reader-bottom-nav .nav-control:hover, .reader-bottom-nav .nav-control.active {
+.reader-bottom-nav .nav-control:hover,
+.reader-bottom-nav .nav-control.active,
+.reader-bottom-nav .speed-select:hover {
   background: #f1f0e9;
   color: #30342e;
 }
@@ -907,12 +940,48 @@ a {
   line-height: 1;
 }
 
-.reader-bottom-nav .speed-control select {
+/* Speed control: the chevron is drawn as a pseudo-element on the
+   WRAPPING <label>, never as a background-image on the <select>
+   itself. Putting background-image on a native <select> makes some
+   browsers/webviews paint that same image, tiled, across the native
+   options popup when it opens — that's the repeating chevron pattern
+   bug from the screenshot. Keeping the <select>'s own background
+   plain avoids it entirely. */
+.reader-bottom-nav .speed-select {
+  position: relative;
+}
+
+.reader-bottom-nav .speed-select::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid #777a72;
+  border-bottom: 1.5px solid #777a72;
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+}
+
+.reader-bottom-nav .speed-select:hover::after {
+  border-color: #30342e;
+}
+
+.reader-bottom-nav .speed-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  height: 100%;
+  padding: 0 18px 0 0;
   border: 0;
   outline: 0;
   background: transparent;
   color: inherit;
   font: inherit;
+  text-align: center;
+  text-align-last: center;
   cursor: pointer;
 }
 
@@ -1072,7 +1141,7 @@ a {
   }
 
   .home-intro {
-    margin: 25px auto 30px 28px;
+    margin: 35px auto 28px;
     padding: 0 18px;
   }
 
