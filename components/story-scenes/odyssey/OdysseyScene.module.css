@@ -1,0 +1,140 @@
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: #173747;
+}
+
+.layer {
+  position: absolute;
+  display: block;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+  animation-play-state: paused !important;
+  will-change: transform;
+}
+
+.playing .layer {
+  animation-play-state: running !important;
+}
+
+.background {
+  inset: -2%;
+  width: 104%;
+  height: 104%;
+  object-fit: cover;
+}
+
+.clouds {
+  z-index: 1;
+  top: -5%;
+  left: -4%;
+  width: 108%;
+  height: auto;
+  opacity: .32;
+  animation: cloud-drift 16s ease-in-out infinite alternate;
+}
+
+.boat {
+  z-index: 2;
+  left: 24%;
+  bottom: 5%;
+  width: 54%;
+  height: auto;
+  transform-origin: 50% 76%;
+  filter: drop-shadow(0 10px 12px rgba(10, 27, 35, .25));
+  animation: boat-float 4.8s ease-in-out infinite;
+}
+
+.waves {
+  z-index: 3;
+  left: -3%;
+  bottom: -5%;
+  width: 106%;
+  height: auto;
+  animation: wave-drift 5.6s ease-in-out infinite alternate;
+}
+
+.journeyScene {
+  background: #3e4d54;
+}
+
+.journeyBackground {
+  animation: journey-push 12s ease-in-out infinite alternate;
+}
+
+.resolveGlow {
+  z-index: 1;
+  top: 0;
+  right: -8%;
+  width: 58%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 70% 58%, rgba(239, 190, 116, .2), transparent 64%);
+  animation: resolve-breathe 5.4s ease-in-out infinite alternate;
+}
+
+.traveler {
+  z-index: 2;
+  left: 4%;
+  bottom: -39%;
+  width: 36%;
+  height: auto;
+  transform-origin: 53% 89%;
+  filter: drop-shadow(0 10px 12px rgba(20, 25, 25, .28));
+  animation: traveler-endures 4.6s ease-in-out infinite;
+}
+
+.wind {
+  z-index: 3;
+  left: -9%;
+  bottom: -11%;
+  width: 112%;
+  height: auto;
+  opacity: .55;
+  animation: wind-passes 6.2s ease-in-out infinite;
+}
+
+@keyframes cloud-drift {
+  from { transform: translate3d(-8px, 0, 0); }
+  to { transform: translate3d(12px, -3px, 0); }
+}
+
+@keyframes boat-float {
+  0%, 100% { transform: translate3d(0, 2px, 0) rotate(-.45deg); }
+  50% { transform: translate3d(0, -6px, 0) rotate(.65deg); }
+}
+
+@keyframes wave-drift {
+  from { transform: translate3d(-8px, 3px, 0) scale(1.01); }
+  to { transform: translate3d(8px, -2px, 0) scale(1.015); }
+}
+
+@keyframes journey-push {
+  from { transform: scale(1.015) translate3d(0, 0, 0); }
+  to { transform: scale(1.035) translate3d(-5px, -2px, 0); }
+}
+
+@keyframes resolve-breathe {
+  from { opacity: .58; transform: scale(.98); }
+  to { opacity: .95; transform: scale(1.04); }
+}
+
+@keyframes traveler-endures {
+  0%, 100% { transform: translate3d(0, 2px, 0) rotate(-.35deg); }
+  50% { transform: translate3d(2px, -3px, 0) rotate(.25deg); }
+}
+
+@keyframes wind-passes {
+  0% { opacity: .28; transform: translate3d(-12px, 3px, 0); }
+  45% { opacity: .58; }
+  100% { opacity: .32; transform: translate3d(16px, -2px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    animation: none !important;
+  }
+}

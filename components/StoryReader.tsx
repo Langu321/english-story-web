@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Story, Vocabulary } from "@/data/types";
 import { vocabulary as vocabularyData } from "@/data/vocabulary";
 import { getAssetPath } from "@/utils/path";
+import { StoryScene } from "@/components/story-scenes/StoryScene";
 
 const STORAGE_KEY = "story-english-vocabulary";
 
@@ -15,6 +16,7 @@ type Timing = {
 
 type ReaderSentence = {
   id: string;
+  sceneId?: string;
   text: string;
   translation?: string;
   audio?: string;
@@ -396,7 +398,13 @@ export function StoryReader({ story }: { story: Story }) {
       <main className="reader-shell">
         <section className="reader-cover-wrap">
           <div className="reader-cover">
-            <img src={getAssetPath(story.coverImage)} alt="" />
+            <StoryScene
+              storyId={story.id}
+              sceneId={current?.sceneId}
+              coverImage={story.coverImage}
+              title={story.title}
+              playing={playing}
+            />
 
             <div className="cover-overlay">
               <a href={getAssetPath("/")} className="back-button" aria-label="Back to stories">

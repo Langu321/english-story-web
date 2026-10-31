@@ -11,6 +11,7 @@ export type Vocabulary = {
 
 export type StorySentence = {
   id: string;
+  sceneId?: string;
   text: string;
   translation: string;
   audio?: string;

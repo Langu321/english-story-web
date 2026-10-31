@@ -7,6 +7,7 @@ export const odysseyPages: Story["pages"] = [
     "sentences": [
       {
         "id": "s01",
+        "sceneId": "s01",
         "text": "I will find my way home, no matter how long the journey takes.",
         "translation": "Tôi sẽ tìm đường trở về nhà, dù hành trình có kéo dài bao lâu.",
         "vocabularyIds": ["journey", "home"],
@@ -28,6 +29,7 @@ export const odysseyPages: Story["pages"] = [
       },
       {
         "id": "s02",
+        "sceneId": "s01",
         "text": "He stood on the shore and looked at the sea in front of him.",
         "translation": "Anh ấy đứng trên bờ biển và nhìn ra vùng biển trước mặt.",
         "vocabularyIds": ["shore"],
@@ -50,6 +52,7 @@ export const odysseyPages: Story["pages"] = [
       },
       {
         "id": "s03",
+        "sceneId": "s01",
         "text": "The wind was cold, and the sky was gray and heavy.",
         "translation": "Gió lạnh, và bầu trời xám xịt, nặng nề.",
         "vocabularyIds": ["wind"],
@@ -69,6 +72,7 @@ export const odysseyPages: Story["pages"] = [
       },
       {
         "id": "s04",
+        "sceneId": "s04",
         "text": "He felt tired after many years of travel, but he did not give up.",
         "translation": "Anh ấy cảm thấy mệt mỏi sau nhiều năm rong ruổi, nhưng anh không bỏ cuộc.",
         "vocabularyIds": ["tired"],
@@ -91,6 +95,7 @@ export const odysseyPages: Story["pages"] = [
       },
       {
         "id": "s05",
+        "sceneId": "s04",
         "text": "Somewhere far away, his home and family were waiting for him.",
         "translation": "Ở một nơi xa, ngôi nhà và gia đình đang chờ anh.",
         "audio": "/stories/odyssey/audio/s05.mp3",
@@ -111,6 +116,7 @@ export const odysseyPages: Story["pages"] = [
       },
       {
         "id": "s06",
+        "sceneId": "s04",
         "text": "He took a deep breath and listened to the sound of the waves.",
         "translation": "Anh hít một hơi thật sâu và lắng nghe tiếng sóng.",
         "vocabularyIds": [],
@@ -132,6 +138,7 @@ export const odysseyPages: Story["pages"] = [
       },
       {
         "id": "s07",
+        "sceneId": "s04",
         "text": "A storm was coming, but he was ready to continue his journey.",
         "translation": "Một cơn bão đang đến, nhưng anh đã sẵn sàng tiếp tục hành trình.",
         "vocabularyIds": ["storm", "journey"],
@@ -152,6 +159,7 @@ export const odysseyPages: Story["pages"] = [
       },
       {
         "id": "s08",
+        "sceneId": "s04",
         "text": "He looked at the stars and remembered the road back home.",
         "translation": "Anh nhìn những vì sao và nhớ về con đường trở về nhà.",
         "vocabularyIds": ["home"],
@@ -171,6 +179,7 @@ export const odysseyPages: Story["pages"] = [
       },
       {
         "id": "s09",
+        "sceneId": "s04",
         "text": "The night was dark, but a small light appeared in the distance.",
         "translation": "Đêm tối, nhưng một ánh sáng nhỏ xuất hiện ở phía xa.",
         "vocabularyIds": [],
@@ -191,6 +200,7 @@ export const odysseyPages: Story["pages"] = [
       },
       {
         "id": "s10",
+        "sceneId": "s04",
         "text": "He smiled because, for the first time in years, home felt close.",
         "translation": "Anh mỉm cười vì lần đầu tiên sau nhiều năm, quê nhà dường như đã rất gần.",
         "vocabularyIds": ["home"],
